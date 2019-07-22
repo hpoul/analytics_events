@@ -66,14 +66,8 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
 
   Expression _convertParametersToDictionary(List<ParameterElement> parameters) {
     final map = Map.fromEntries(
-        parameters.map((parameter) => MapEntry(literalString(_eventName(parameter.name)), parameter.name)));
-    return literalMap(map, refer('String'), refer('String'));
-//    final result = StringBuffer('<String, dynamic>{');
-//    for (final parameter in parameters) {
-//      result..write('\'')..write(parameter.name)..write('\': ')..write(parameter.name);
-//    }
-//    result.write('}');
-//    return result.toString();
+        parameters.map((parameter) => MapEntry(literalString(_eventName(parameter.name)), refer(parameter.name))));
+    return literalMap(map, refer('String'), refer('dynamic'));
   }
 
   String _eventName(String name) {
