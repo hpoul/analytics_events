@@ -1,0 +1,11 @@
+builders:
+  analytics_event_builder:
+    import: "package:analytics_event_gen/builder.dart"
+    builder_factories: ["analyticsEventBuilder"]
+    # The `partId` argument to `SharedPartBuilder` is "some_cool_builder"
+    build_extensions: {".dart": [".analytics_event_builder.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    # To copy the `.g.part` content into `.g.dart` in the source tree
+    applies_builders: ["source_gen|combining_builder"]
+
