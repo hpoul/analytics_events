@@ -7,11 +7,17 @@ An easy generator for tracking firebase analytics events via type safe methods.
 Right now it is not published to pub, so simply add git reference:
 
 ```yaml
+dependencies:
+  # ...
   analytics_event_gen:
     git:
       url: https://github.com/hpoul/analytics_events.git
       ref: master
       path: analytics_event_gen
+dev_dependencies:
+  # include build_runner, only used for code generation.
+  build_runner: ^1.6.5
+
 ```
 
 ## Create AnalyticsEvents class:
