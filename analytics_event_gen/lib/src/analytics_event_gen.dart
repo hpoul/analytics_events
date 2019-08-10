@@ -1,5 +1,6 @@
 import 'package:analytics_event_gen/src/annotation.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
@@ -65,10 +66,17 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
   }
 
   Expression _convertParametersToDictionary(List<ParameterElement> parameters) {
-    final map = Map.fromEntries(
-        parameters.map((parameter) => MapEntry(literalString(_eventName(parameter.name)), refer(parameter.name))));
+    final map = Map.fromEntries(parameters.map(
+      (parameter) => MapEntry(
+        literalString(_eventName(parameter.name)),
+        _convertParameterValue(parameter),
+      ),
+    ));
     return literalMap(map, refer('String'), refer('dynamic'));
   }
+
+  bool _isDartCore(DartType type) =>
+      type.isDartCoreBool || type.isDartCoreDouble || type.isDartCoreInt || type.isDartCoreString;
 
   String _eventName(String name) {
     if (name.startsWith(_removeEventPrefix)) {
@@ -76,5 +84,23 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
       return '${eventName[0].toLowerCase()}${eventName.substring(1)}';
     }
     return name;
+  }
+
+  Expression _convertParameterValue(ParameterElement parameter) {
+    final element = parameter.type?.element;
+    if (element is ClassElement) {
+      if (element.isEnum) {
+        if (element.nameLength > 0) {
+          // Get rid of the enum name in the `toString`
+          // ie. instead of `MyEnum.myValue` only use `myValue`
+          return refer(parameter.name)
+              .nullSafeProperty('toString')
+              .call([])
+              .nullSafeProperty('substring')
+              .call([literalNum(element.nameLength + 1)]);
+        }
+      }
+    }
+    return _isDartCore(parameter.type) ? refer(parameter.name) : refer(parameter.name).property('toString').call([]);
   }
 }
