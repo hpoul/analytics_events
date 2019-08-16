@@ -38,7 +38,7 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
           )
           ..body = refer(_trackerFieldName)
 //              .property('track')
-              .call([literalString(method.name), _convertParametersToDictionary(method.parameters)]).code
+              .call([literalString(_eventName(method.name)), _convertParametersToDictionary(method.parameters)]).code
 //            ..body = Code(
 //                '''\n$_trackerFieldName.track('${method.name}', ${_convertParametersToDictionary(method.parameters)});\n'''),
         ));
@@ -68,7 +68,7 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
   Expression _convertParametersToDictionary(List<ParameterElement> parameters) {
     final map = Map.fromEntries(parameters.map(
       (parameter) => MapEntry(
-        literalString(_eventName(parameter.name)),
+        literalString(parameter.name),
         _convertParameterValue(parameter),
       ),
     ));
