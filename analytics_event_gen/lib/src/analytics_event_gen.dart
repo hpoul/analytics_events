@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:analytics_event_gen/src/annotation.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -7,18 +9,59 @@ import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:source_gen/source_gen.dart';
 
-class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
+abstract class GeneratorForImplementers<T> extends Generator {
+  TypeChecker get typeChecker => TypeChecker.fromRuntime(T);
+
+  @override
+  FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
+    final values = <String>{'// ignore_for_file: unnecessary_statements'};
+
+    for (var element in library.allElements) {
+      if (element is ClassElement && needsGenerate(element)) {
+        final generatedValue = generateForElement(element, buildStep);
+        for (var value in [generatedValue]) {
+          assert(value == null || (value.length == value.trim().length));
+          values.add(value);
+        }
+      }
+    }
+//    for (var annotatedElement in library.annotatedWith(typeChecker)) {
+//      final generatedValue =
+//          generateForAnnotatedElement(annotatedElement.element, annotatedElement.annotation, buildStep);
+//      for (var value in [generatedValue]) {
+//        assert(value == null || (value.length == value.trim().length));
+//        values.add(value);
+//      }
+//    }
+
+    return values.join('\n\n');
+  }
+
+  String generateForElement(Element element, BuildStep buildStep);
+
+  bool needsGenerate(ClassElement classElement) {
+    return typeChecker.isAssignableFrom(classElement);
+  }
+}
+
+//class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEventStubs> {
+class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStubs> {
   static const _override = Reference('override');
   static const _trackerFieldName = 'tracker';
+
+  /// internal method which forwards to [_trackerFieldName] if it is defined.
+  static const _trackerMethodName = '_track';
+  static const _trackEventMethodName = 'trackEvent';
   static const _trackAnalyticsFunc = Reference('TrackAnalytics');
+  static const _registerTrackerFunc = Reference('registerTracker');
   static const _removeEventPrefix = 'track';
 
   @override
-  dynamic generateForAnnotatedElement(Element element, ConstantReader annotation, BuildStep buildStep) {
+  String generateForElement(Element element, BuildStep buildStep) {
     if (element is! ClassElement) {
       final name = element.name;
       throw InvalidGenerationSourceError('Generator cannot target `$name`.',
-          todo: 'Remove the $AnalyticsEvents annotation from `$name`.', element: element);
+          todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.', element: element);
     }
     final classElement = element as ClassElement;
     final result = StringBuffer();
@@ -36,7 +79,7 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
                     ..named = true,
                 ))),
           )
-          ..body = refer(_trackerFieldName)
+          ..body = refer(_trackEventMethodName)
 //              .property('track')
               .call([literalString(_eventName(method.name)), _convertParametersToDictionary(method.parameters)]).code
 //            ..body = Code(
@@ -45,18 +88,22 @@ class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEvents> {
 
     final c = Class((cb) {
       cb
-        ..name = '${element.name}Impl'
+        ..name = '_\$${element.name}'
         ..constructors.add(
           Constructor((conb) => conb
-            ..requiredParameters.add(Parameter((pb) => pb
-              ..name = 'tracker'
-              ..toThis = true))),
+            ..optionalParameters.add(Parameter((pb) => pb
+              ..name = _trackerFieldName
+              ..type = _trackAnalyticsFunc))
+            ..body = refer(_trackerFieldName)
+                .notEqualTo(literalNull)
+                .conditional(_registerTrackerFunc.call([refer(_trackerFieldName)]), literalNull)
+                .statement),
         )
-        ..fields.add(Field((fb) => fb
-          ..name = _trackerFieldName
-          ..modifier = FieldModifier.final$
-          ..type = _trackAnalyticsFunc))
-        ..implements.add(refer(element.name))
+//        ..fields.add(Field((fb) => fb
+//          ..name = _trackerFieldName
+//          ..type = _trackAnalyticsFunc))
+        ..extend = refer(element.name)
+        ..mixins.add(refer('AnalyticsEventStubsImpl'))
         ..methods.addAll(methods);
     });
 

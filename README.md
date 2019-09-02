@@ -37,14 +37,15 @@ class MyAnalyticsBloc {
     // into an `eventName` and pass it to your callback method.
     // you can then do whatever you want with it, e.g. send to 
     // firebase analytics.
-    events = AnalyticsEventImpl((eventName, params) {
+    events.registerTracker((eventName, params) {
       FirebaseAnalytics().logEvent(name: event, parameters: params);
     });
   }
+  
+  final events = _$AnalyticsEvents();
 }
 
-@AnalyticsEvents()
-abstract class AnalyticsEvent {
+abstract class AnalyticsEvents implements AnalyticsEventStubs {
   void trackMyUserInteraction({double myProp, String yourProp});
 }
 ```
