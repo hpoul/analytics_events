@@ -16,10 +16,10 @@ abstract class GeneratorForImplementers<T> extends Generator {
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
     final values = <String>{'// ignore_for_file: unnecessary_statements'};
 
-    for (var element in library.allElements) {
+    for (final element in library.allElements) {
       if (element is ClassElement && needsGenerate(element)) {
         final generatedValue = generateForElement(element, buildStep);
-        for (var value in [generatedValue]) {
+        for (final value in [generatedValue]) {
           assert(value == null || (value.length == value.trim().length));
           values.add(value);
         }
