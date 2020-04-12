@@ -1,4 +1,4 @@
-/// annotation for classes defining analytics events.
+/// Interface which should be subclassed by analytics-events stubs.
 abstract class AnalyticsEventStubs {
   const AnalyticsEventStubs();
 
@@ -28,7 +28,3 @@ mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
   @override
   void removeTracker(TrackAnalytics tracker) => _trackerList.remove(tracker);
 }
-
-//abstract class AnalyticsTracker {
-//  void track(String event, Map<String, dynamic> params);
-//}

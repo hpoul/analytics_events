@@ -4,16 +4,13 @@ An easy generator for tracking firebase analytics events via type safe methods.
 
 ## Add to pubspec.yaml
 
-Right now it is not published to pub, so simply add git reference:
+Check pub for the latest version: 
+[![Pub](https://img.shields.io/pub/v/analytics_events_gen?color=green)](https://pub.dev/packages/analytics_events_gen/)
 
 ```yaml
 dependencies:
   # ...
-  analytics_event_gen:
-    git:
-      url: https://github.com/hpoul/analytics_events.git
-      ref: master
-      path: analytics_event_gen
+  analytics_event_gen: 0.1.0
 dev_dependencies:
   # include build_runner, only used for code generation.
   build_runner: ^1.6.5
@@ -53,6 +50,10 @@ abstract class AnalyticsEvents implements AnalyticsEventStubs {
 ## Run the build generator
 
 ```sh
-flutter packages pub run build_runner build --delete-conflicting-outputs
+# For flutter projects
+flutter pub pub run build_runner build --delete-conflicting-outputs
+
+# For dart projects
+pub run build_runner build --delete-conflicting-outputs
 ```
 
