@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:analytics_event_gen/src/annotation.dart';
+import 'package:analytics_event/analytics_event.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';

@@ -1,5 +1,4 @@
-// @nodoc
-library analytics_event_gen;
+library analytics_event_gen_builder;
 
 import 'package:analytics_event_gen/src/analytics_event_gen.dart';
 import 'package:build/build.dart';
