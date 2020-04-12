@@ -1,3 +1,6 @@
-## [0.0.1] - TODO: Add release date.
+## [0.1.0]
 
-* TODO: Describe initial release.
+* Filter out abstract methods.
+
+## [0.0.1] - Initial Release
+

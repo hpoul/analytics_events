@@ -9,7 +9,8 @@ abstract class AnalyticsEventStubs {
   void removeTracker(TrackAnalytics tracker);
 }
 
-typedef TrackAnalytics = void Function(String event, Map<String, dynamic> params);
+typedef TrackAnalytics = void Function(
+    String event, Map<String, dynamic> params);
 
 mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
   final List<TrackAnalytics> _trackerList = [];

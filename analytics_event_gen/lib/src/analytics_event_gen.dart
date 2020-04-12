@@ -45,12 +45,12 @@ abstract class GeneratorForImplementers<T> extends Generator {
 }
 
 //class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEventStubs> {
-class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStubs> {
+class AnalyticsEventGenerator
+    extends GeneratorForImplementers<AnalyticsEventStubs> {
   static const _override = Reference('override');
   static const _trackerFieldName = 'tracker';
 
   /// internal method which forwards to [_trackerFieldName] if it is defined.
-  static const _trackerMethodName = '_track';
   static const _trackEventMethodName = 'trackEvent';
   static const _trackAnalyticsFunc = Reference('TrackAnalytics');
   static const _registerTrackerFunc = Reference('registerTracker');
@@ -61,30 +61,35 @@ class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStu
     if (element is! ClassElement) {
       final name = element.name;
       throw InvalidGenerationSourceError('Generator cannot target `$name`.',
-          todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.', element: element);
+          todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.',
+          element: element);
     }
     final classElement = element as ClassElement;
     final result = StringBuffer();
 
     result.writeln('// got to generate for ${element.name}');
 
-    final methods = classElement.methods.map((method) => Method.returnsVoid((mb) => mb
-          ..name = method.name
-          ..annotations.add(_override)
-          ..optionalParameters = ListBuilder(
-            (method.parameters.map<Parameter>((parameter) => Parameter(
-                  (pb) => pb
-                    ..name = parameter.name
-                    ..type = refer(parameter.type.name)
-                    ..named = true,
-                ))),
-          )
-          ..body = refer(_trackEventMethodName)
+    final methods =
+        classElement.methods.map((method) => Method.returnsVoid((mb) => mb
+              ..name = method.name
+              ..annotations.add(_override)
+              ..optionalParameters = ListBuilder(
+                (method.parameters.map<Parameter>((parameter) => Parameter(
+                      (pb) => pb
+                        ..name = parameter.name
+                        ..type = refer(parameter.type.element.name)
+                        ..named = true,
+                    ))),
+              )
+              ..body = refer(_trackEventMethodName)
 //              .property('track')
-              .call([literalString(_eventName(method.name)), _convertParametersToDictionary(method.parameters)]).code
+                  .call([
+                literalString(_eventName(method.name)),
+                _convertParametersToDictionary(method.parameters)
+              ]).code
 //            ..body = Code(
 //                '''\n$_trackerFieldName.track('${method.name}', ${_convertParametersToDictionary(method.parameters)});\n'''),
-        ));
+            ));
 
     final c = Class((cb) {
       cb
@@ -96,7 +101,9 @@ class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStu
               ..type = _trackAnalyticsFunc))
             ..body = refer(_trackerFieldName)
                 .notEqualTo(literalNull)
-                .conditional(_registerTrackerFunc.call([refer(_trackerFieldName)]), literalNull)
+                .conditional(
+                    _registerTrackerFunc.call([refer(_trackerFieldName)]),
+                    literalNull)
                 .statement),
         )
 //        ..fields.add(Field((fb) => fb
@@ -123,7 +130,10 @@ class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStu
   }
 
   bool _isDartCore(DartType type) =>
-      type.isDartCoreBool || type.isDartCoreDouble || type.isDartCoreInt || type.isDartCoreString;
+      type.isDartCoreBool ||
+      type.isDartCoreDouble ||
+      type.isDartCoreInt ||
+      type.isDartCoreString;
 
   String _eventName(String name) {
     if (name.startsWith(_removeEventPrefix)) {
@@ -148,6 +158,8 @@ class AnalyticsEventGenerator extends GeneratorForImplementers<AnalyticsEventStu
         }
       }
     }
-    return _isDartCore(parameter.type) ? refer(parameter.name) : refer(parameter.name).property('toString').call([]);
+    return _isDartCore(parameter.type)
+        ? refer(parameter.name)
+        : refer(parameter.name).property('toString').call([]);
   }
 }
