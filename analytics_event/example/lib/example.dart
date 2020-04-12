@@ -1,4 +1,4 @@
-import 'package:analytics_event_gen/analytics_event_gen.dart';
+import 'package:analytics_event/analytics_event.dart';
 import 'package:logging/logging.dart';
 import 'package:logging_appenders/logging_appenders.dart';
 

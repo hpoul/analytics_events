@@ -5,7 +5,8 @@ environment:
 
 dependencies:
   analyzer: ">=0.37.0 <0.40.0"
-  analytics_event_gen: ^0.1.0
+  analytics_event:
+    path: ../
   logging: ^0.11.4
   logging_appenders: ^0.4.1
 
@@ -14,5 +15,5 @@ dev_dependencies:
 
 dependency_overrides:
   analytics_event_gen:
-    path: ../
+    path: ../../analytics_event_gen
 

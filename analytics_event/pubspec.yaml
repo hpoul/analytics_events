@@ -1,0 +1,14 @@
+name: analytics_event
+description: Code generator to simplify generating analytics tracking events. Turns stub methods
+    into tracking calls for fire base analytics, google analytics, etc.
+version: 0.1.1
+homepage: https://github.com/hpoul/analytics_events/
+
+environment:
+  sdk: ">=2.2.2 <3.0.0"
+
+dependencies:
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  build_runner: ^1.8.1
