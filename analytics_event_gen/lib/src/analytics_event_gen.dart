@@ -25,14 +25,6 @@ abstract class GeneratorForImplementers<T> extends Generator {
         }
       }
     }
-//    for (var annotatedElement in library.annotatedWith(typeChecker)) {
-//      final generatedValue =
-//          generateForAnnotatedElement(annotatedElement.element, annotatedElement.annotation, buildStep);
-//      for (var value in [generatedValue]) {
-//        assert(value == null || (value.length == value.trim().length));
-//        values.add(value);
-//      }
-//    }
 
     return values.join('\n\n');
   }
@@ -69,8 +61,9 @@ class AnalyticsEventGenerator
 
     result.writeln('// got to generate for ${element.name}');
 
-    final methods =
-        classElement.methods.map((method) => Method.returnsVoid((mb) => mb
+    final methods = classElement.methods
+        .where((method) => method.isAbstract)
+        .map((method) => Method.returnsVoid((mb) => mb
               ..name = method.name
               ..annotations.add(_override)
               ..optionalParameters = ListBuilder(
