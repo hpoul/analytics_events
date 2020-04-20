@@ -46,7 +46,7 @@ class AnalyticsEventGenerator
   static const _trackEventMethodName = 'trackEvent';
   static const _trackAnalyticsFunc = Reference('TrackAnalytics');
   static const _registerTrackerFunc = Reference('registerTracker');
-  static const _removeEventPrefix = 'track';
+  static const _removeEventPrefix = ['_track', 'track'];
 
   @override
   String generateForElement(Element element, BuildStep buildStep) {
@@ -129,9 +129,11 @@ class AnalyticsEventGenerator
       type.isDartCoreString;
 
   String _eventName(String name) {
-    if (name.startsWith(_removeEventPrefix)) {
-      final eventName = name.substring(_removeEventPrefix.length);
-      return '${eventName[0].toLowerCase()}${eventName.substring(1)}';
+    for (final removeEventPrefix in _removeEventPrefix) {
+      if (name.startsWith(removeEventPrefix)) {
+        final eventName = name.substring(removeEventPrefix.length);
+        return '${eventName[0].toLowerCase()}${eventName.substring(1)}';
+      }
     }
     return name;
   }
