@@ -1,3 +1,7 @@
+## [0.1.2]
+
+* Make sure during initialization no events are lost.
+
 ## [0.1.1]
 
 * Separate `analytics_event` from the source generator `analytics_event_gen`
