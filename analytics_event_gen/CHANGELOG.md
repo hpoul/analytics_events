@@ -1,3 +1,8 @@
+## [0.1.2]
+
+* Support for required arguments
+* Support for named arguments with default values.
+
 ## [0.1.1+1]
 
 * Also remove `_track` from event name.

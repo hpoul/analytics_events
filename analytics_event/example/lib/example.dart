@@ -10,6 +10,17 @@ final _logger = Logger('example');
 /// and has stub methods for all events you want to track.
 abstract class Events implements AnalyticsEventStubs {
   void trackAppLaunch({String date});
+  void trackExample(String myRequiredParameter, {String withDefault = 'test'});
+
+  /// enums will be correctly transformed
+  /// i.e. 'action' will be 'launch', 'remove' or 'share'
+  void trackItem(ItemAction action);
+}
+
+enum ItemAction {
+  launch,
+  remove,
+  share,
 }
 
 /// A analytics service which is responsible for sending events to

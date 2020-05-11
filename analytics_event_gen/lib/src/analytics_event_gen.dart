@@ -48,6 +48,18 @@ class AnalyticsEventGenerator
   static const _registerTrackerFunc = Reference('registerTracker');
   static const _removeEventPrefix = ['_track', 'track'];
 
+  Parameter _toParameter(ParameterElement parameter) {
+    return Parameter(
+      (pb) => pb
+        ..name = parameter.name
+        ..type = refer(parameter.type.element.name)
+        ..named = parameter.isNamed
+        ..defaultTo = parameter.defaultValueCode == null
+            ? null
+            : Code(parameter.defaultValueCode),
+    );
+  }
+
   @override
   String generateForElement(Element element, BuildStep buildStep) {
     if (element is! ClassElement) {
@@ -66,13 +78,13 @@ class AnalyticsEventGenerator
         .map((method) => Method.returnsVoid((mb) => mb
               ..name = method.name
               ..annotations.add(_override)
+              ..requiredParameters.addAll(method.parameters
+                  .where((p) => p.isRequiredPositional)
+                  .map((parameter) => _toParameter(parameter)))
               ..optionalParameters = ListBuilder(
-                (method.parameters.map<Parameter>((parameter) => Parameter(
-                      (pb) => pb
-                        ..name = parameter.name
-                        ..type = refer(parameter.type.element.name)
-                        ..named = true,
-                    ))),
+                method.parameters
+                    .where((p) => !p.isRequiredPositional)
+                    .map<Parameter>((parameter) => _toParameter(parameter)),
               )
               ..body = refer(_trackEventMethodName)
 //              .property('track')
