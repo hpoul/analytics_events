@@ -1,3 +1,7 @@
+## 0.1.2+2
+
+* produce null safe code.
+
 ## 0.1.2+1
 
 * Upgrade dependencies.
