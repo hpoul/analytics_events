@@ -1,3 +1,7 @@
+## [1.0.0-nullsafety.1]
+
+* Null safety migration.
+
 ## [0.1.2]
 
 * Make sure during initialization no events are lost.

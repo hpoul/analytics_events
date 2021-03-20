@@ -24,12 +24,12 @@ mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
   /// as long as [registerTracker] was never called, we will queue
   /// all events. Once the first tracker is registered the queue
   /// will be emptied.
-  List<_QueuedEvent> _queuedEvents = [];
+  List<_QueuedEvent>? _queuedEvents = [];
 
   @override
   void trackEvent(String event, Map<String, dynamic> params) {
     if (_queuedEvents != null && _trackerList.isEmpty) {
-      _queuedEvents.add(_QueuedEvent(event, params));
+      _queuedEvents!.add(_QueuedEvent(event, params));
       return;
     }
     for (final tracker in _trackerList) {
@@ -41,7 +41,7 @@ mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
   void registerTracker(TrackAnalytics tracker) {
     _trackerList.add(tracker);
     if (_queuedEvents != null) {
-      for (final event in _queuedEvents) {
+      for (final event in _queuedEvents!) {
         tracker(event.event, event.params);
       }
       _queuedEvents = null;
