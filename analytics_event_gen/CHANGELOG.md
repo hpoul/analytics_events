@@ -1,3 +1,7 @@
+## 0.1.2+1
+
+* Upgrade dependencies.
+
 ## [0.1.2]
 
 * Support for required arguments
