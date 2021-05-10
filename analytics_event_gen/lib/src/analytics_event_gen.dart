@@ -52,11 +52,11 @@ class AnalyticsEventGenerator
     return Parameter(
       (pb) => pb
         ..name = parameter.name
-        ..type = refer(parameter.type.element.name)
+        ..type = refer(parameter.type.element!.name!)
         ..named = parameter.isNamed
         ..defaultTo = parameter.defaultValueCode == null
             ? null
-            : Code(parameter.defaultValueCode),
+            : Code(parameter.defaultValueCode!),
     );
   }
 
@@ -68,7 +68,7 @@ class AnalyticsEventGenerator
           todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.',
           element: element);
     }
-    final classElement = element as ClassElement;
+    final classElement = element;
     final result = StringBuffer();
 
     result.writeln('// got to generate for ${element.name}');
@@ -119,7 +119,10 @@ class AnalyticsEventGenerator
         ..methods.addAll(methods);
     });
 
-    final emitter = DartEmitter(Allocator.simplePrefixing());
+    final emitter = DartEmitter(
+      allocator: Allocator.simplePrefixing(),
+      useNullSafetySyntax: true,
+    );
     return DartFormatter().format('${c.accept(emitter)}');
 //    return result.toString();
   }

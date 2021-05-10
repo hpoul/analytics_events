@@ -1,3 +1,7 @@
+## 0.2.0
+
+* upgrade to null-safety.
+
 ## 0.1.3-1
 
 * produce null safe code.
