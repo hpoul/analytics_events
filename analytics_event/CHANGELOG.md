@@ -1,3 +1,7 @@
+## [1.0.0]
+
+* stable release.
+
 ## [1.0.0-nullsafety.1]
 
 * Null safety migration.
