@@ -39,6 +39,8 @@ abstract class GeneratorForImplementers<T> extends Generator {
 //class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEventStubs> {
 class AnalyticsEventGenerator
     extends GeneratorForImplementers<AnalyticsEventStubs> {
+  AnalyticsEventGenerator({required this.useNullSafetySyntax});
+
   static const _override = Reference('override');
   static const _trackerFieldName = 'tracker';
 
@@ -47,6 +49,8 @@ class AnalyticsEventGenerator
   static const _trackAnalyticsFunc = Reference('TrackAnalytics');
   static const _registerTrackerFunc = Reference('registerTracker');
   static const _removeEventPrefix = ['_track', 'track'];
+
+  bool useNullSafetySyntax;
 
   Parameter _toParameter(ParameterElement parameter) {
     return Parameter(
@@ -121,7 +125,7 @@ class AnalyticsEventGenerator
 
     final emitter = DartEmitter(
       allocator: Allocator.simplePrefixing(),
-      useNullSafetySyntax: true,
+      useNullSafetySyntax: useNullSafetySyntax,
     );
     return DartFormatter().format('${c.accept(emitter)}');
 //    return result.toString();
