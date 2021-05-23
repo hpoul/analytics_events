@@ -47,6 +47,19 @@ abstract class AnalyticsEvents implements AnalyticsEventStubs {
 }
 ```
 
+By default the library will use null safety syntax. This can be disabled
+using build.yaml file:
+
+```yaml
+targets:
+  $default:
+    builders:
+      analytics_event_gen|analytics_event_builder:
+        options:
+          useNullSafetySyntax: true
+
+```
+
 ## Run the build generator
 
 ```sh

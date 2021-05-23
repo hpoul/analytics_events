@@ -1,3 +1,7 @@
+## 1.1.0
+
+* By default use null-safety syntax, see README.md for how to disable.
+
 ## 1.0.0
 
 * upgrade to null-safety.

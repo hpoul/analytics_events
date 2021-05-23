@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:analytics_event/analytics_event.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:built_collection/built_collection.dart';
@@ -53,10 +54,13 @@ class AnalyticsEventGenerator
   bool useNullSafetySyntax;
 
   Parameter _toParameter(ParameterElement parameter) {
+    final nullable =
+        parameter.type.nullabilitySuffix == NullabilitySuffix.question;
     return Parameter(
       (pb) => pb
         ..name = parameter.name
-        ..type = refer(parameter.type.element!.name!)
+        ..type = refer(parameter.type.element!.name!).asNullable(nullable)
+        ..required = parameter.isNamed && parameter.isRequiredNamed
         ..named = parameter.isNamed
         ..defaultTo = parameter.defaultValueCode == null
             ? null
@@ -107,7 +111,7 @@ class AnalyticsEventGenerator
           Constructor((conb) => conb
             ..optionalParameters.add(Parameter((pb) => pb
               ..name = _trackerFieldName
-              ..type = _trackAnalyticsFunc))
+              ..type = _trackAnalyticsFunc.asNullable(true)))
             ..body = refer(_trackerFieldName)
                 .notEqualTo(literalNull)
                 .conditional(
@@ -127,7 +131,8 @@ class AnalyticsEventGenerator
       allocator: Allocator.simplePrefixing(),
       useNullSafetySyntax: useNullSafetySyntax,
     );
-    return DartFormatter().format('${c.accept(emitter)}');
+    return '// useNullSafetySyntax: $useNullSafetySyntax\n' +
+        DartFormatter().format('${c.accept(emitter)}');
 //    return result.toString();
   }
 
@@ -175,5 +180,14 @@ class AnalyticsEventGenerator
     return _isDartCore(parameter.type)
         ? refer(parameter.name)
         : refer(parameter.name).property('toString').call([]);
+  }
+}
+
+extension on Reference {
+  Reference asNullable(bool isNullable) {
+    if (!isNullable) {
+      return this;
+    }
+    return ((type as TypeReference).toBuilder()..isNullable = true).build();
   }
 }
