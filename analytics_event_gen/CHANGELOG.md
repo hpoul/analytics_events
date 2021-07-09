@@ -1,3 +1,9 @@
+## 1.1.1
+
+* update dependencies.
+* fix nullsafe accessors.
+* fixed some warning messages.
+
 ## 1.1.0
 
 * By default use null-safety syntax, see README.md for how to disable.

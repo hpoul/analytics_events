@@ -15,19 +15,24 @@ abstract class GeneratorForImplementers<T> extends Generator {
 
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
-    final values = <String>{'// ignore_for_file: unnecessary_statements'};
+    final values = <String>{};
 
     for (final element in library.allElements) {
       if (element is ClassElement && needsGenerate(element)) {
         final generatedValue = generateForElement(element, buildStep);
         for (final value in [generatedValue]) {
-          assert(value == null || (value.length == value.trim().length));
+          assert(value.length == value.trim().length);
           values.add(value);
         }
       }
     }
 
-    return values.join('\n\n');
+    if (values.isEmpty) {
+      return '';
+    }
+
+    return '// ignore_for_file: unnecessary_statements\n\n' +
+        values.join('\n\n');
   }
 
   String generateForElement(Element element, BuildStep buildStep);
@@ -163,16 +168,19 @@ class AnalyticsEventGenerator
   }
 
   Expression _convertParameterValue(ParameterElement parameter) {
-    final element = parameter.type?.element;
+    final element = parameter.type.element;
     if (element is ClassElement) {
       if (element.isEnum) {
         if (element.nameLength > 0) {
+          final isNullable =
+              parameter.type.nullabilitySuffix == NullabilitySuffix.none;
           // Get rid of the enum name in the `toString`
           // ie. instead of `MyEnum.myValue` only use `myValue`
-          return refer(parameter.name)
-              .nullSafeProperty('toString')
+          return (isNullable
+                  ? refer(parameter.name).nullSafeProperty('toString')
+                  : refer(parameter.name).property('toString'))
               .call([])
-              .nullSafeProperty('substring')
+              .property('substring')
               .call([literalNum(element.nameLength + 1)]);
         }
       }
