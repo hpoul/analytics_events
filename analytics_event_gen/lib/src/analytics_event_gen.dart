@@ -8,7 +8,10 @@ import 'package:build/build.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:logging/logging.dart';
 import 'package:source_gen/source_gen.dart';
+
+final _logger = Logger('analytics_event_gen');
 
 abstract class GeneratorForImplementers<T> extends Generator {
   TypeChecker get typeChecker => TypeChecker.fromRuntime(T);
@@ -58,14 +61,22 @@ class AnalyticsEventGenerator
 
   bool useNullSafetySyntax;
 
-  Parameter _toParameter(ParameterElement parameter) {
+  Parameter _toParameter(
+      ClassElement classElement, ParameterElement parameter) {
     final nullable =
         parameter.type.nullabilitySuffix == NullabilitySuffix.question;
+    final isRequired = !nullable && parameter.defaultValueCode == null;
+    if (parameter.isNamed && !parameter.isRequiredNamed && isRequired) {
+      _logger.severe('named parameter is not nullable and has no default, '
+          'but is not required. '
+          '{$classElement}: {$parameter}');
+    }
     return Parameter(
       (pb) => pb
         ..name = parameter.name
         ..type = refer(parameter.type.element!.name!).asNullable(nullable)
-        ..required = parameter.isNamed && parameter.isRequiredNamed
+        ..required =
+            parameter.isNamed && (parameter.isRequiredNamed || isRequired)
         ..named = parameter.isNamed
         ..defaultTo = parameter.defaultValueCode == null
             ? null
@@ -93,11 +104,12 @@ class AnalyticsEventGenerator
               ..annotations.add(_override)
               ..requiredParameters.addAll(method.parameters
                   .where((p) => p.isRequiredPositional)
-                  .map((parameter) => _toParameter(parameter)))
+                  .map((parameter) => _toParameter(classElement, parameter)))
               ..optionalParameters = ListBuilder(
                 method.parameters
                     .where((p) => !p.isRequiredPositional)
-                    .map<Parameter>((parameter) => _toParameter(parameter)),
+                    .map<Parameter>(
+                        (parameter) => _toParameter(classElement, parameter)),
               )
               ..body = refer(_trackEventMethodName)
 //              .property('track')
@@ -148,7 +160,7 @@ class AnalyticsEventGenerator
         _convertParameterValue(parameter),
       ),
     ));
-    return literalMap(map, refer('String'), refer('dynamic'));
+    return literalMap(map, refer('String'), refer('Object').asNullable(true));
   }
 
   bool _isDartCore(DartType type) =>

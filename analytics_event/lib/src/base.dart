@@ -2,7 +2,7 @@
 abstract class AnalyticsEventStubs {
   const AnalyticsEventStubs();
 
-  void trackEvent(String event, Map<String, dynamic> params);
+  void trackEvent(String event, Map<String, Object> params);
 
   void registerTracker(TrackAnalytics tracker);
 
@@ -10,12 +10,12 @@ abstract class AnalyticsEventStubs {
 }
 
 typedef TrackAnalytics = void Function(
-    String event, Map<String, dynamic> params);
+    String event, Map<String, Object?> params);
 
 class _QueuedEvent {
   _QueuedEvent(this.event, this.params);
   final String event;
-  final Map<String, dynamic> params;
+  final Map<String, Object?> params;
 }
 
 mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
@@ -27,7 +27,7 @@ mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
   List<_QueuedEvent>? _queuedEvents = [];
 
   @override
-  void trackEvent(String event, Map<String, dynamic> params) {
+  void trackEvent(String event, Map<String, Object?> params) {
     if (_queuedEvents != null && _trackerList.isEmpty) {
       _queuedEvents!.add(_QueuedEvent(event, params));
       return;

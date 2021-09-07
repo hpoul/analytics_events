@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Use `Map<String, Object?>` instead of `Map<String, dynamic>`.
+
 ## 1.1.1+1
 
 * update dependencies.

@@ -9,12 +9,14 @@ final _logger = Logger('example');
 /// Create an abstract class which implements [AnalyticsEventStubs]
 /// and has stub methods for all events you want to track.
 abstract class Events implements AnalyticsEventStubs {
-  void trackAppLaunch({String date});
+  void trackAppLaunch({required String date});
   void trackExample(String myRequiredParameter, {String withDefault = 'test'});
 
   /// enums will be correctly transformed
   /// i.e. 'action' will be 'launch', 'remove' or 'share'
   void trackItem(ItemAction action);
+
+  void trackNullableItem(ItemAction? action);
 }
 
 enum ItemAction {
@@ -26,14 +28,12 @@ enum ItemAction {
 /// A analytics service which is responsible for sending events to
 /// your analytics provider (e.g. firebase analytics).
 class AnalyticsService {
-  AnalyticsService() {
-    // Instantiate the generated Events implementation.
-    events = _$Events()..registerTracker(_trackEvent);
-  }
+  AnalyticsService();
 
-  Events events;
+  // Instantiate the generated Events implementation.
+  late final Events events = _$Events(_trackEvent);
 
-  void _trackEvent(String event, Map<String, dynamic> params) {
+  void _trackEvent(String event, Map<String, Object?> params) {
     // Here you would send the event to your analytics service.
     _logger.info('We have to track event $event with parameters: $params');
   }
@@ -42,8 +42,7 @@ class AnalyticsService {
 }
 
 void main() {
-  Logger.root.level = Level.ALL;
-  PrintAppender().attachToLogger(Logger.root);
+  PrintAppender.setupLogging();
 
   final myAnalytics = AnalyticsService();
 
