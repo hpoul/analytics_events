@@ -173,7 +173,7 @@ class AnalyticsEventGenerator
       if (element.isEnum) {
         if (element.nameLength > 0) {
           final isNullable =
-              parameter.type.nullabilitySuffix == NullabilitySuffix.none;
+              parameter.type.nullabilitySuffix != NullabilitySuffix.none;
           // Get rid of the enum name in the `toString`
           // ie. instead of `MyEnum.myValue` only use `myValue`
           return (isNullable
