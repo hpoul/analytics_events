@@ -1,3 +1,7 @@
+## 1.1.3
+
+* Upgrade dependency of `analyzer` to support `3.0.0`
+
 ## 1.1.2
 
 * Use `Map<String, Object?>` instead of `Map<String, dynamic>`.
