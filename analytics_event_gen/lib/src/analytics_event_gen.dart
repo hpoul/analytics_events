@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:analytics_event/analytics_event.dart';
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -9,6 +10,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:logging/logging.dart';
+import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 final _logger = Logger('analytics_event_gen');
@@ -50,6 +52,9 @@ class AnalyticsEventGenerator
     extends GeneratorForImplementers<AnalyticsEventStubs> {
   AnalyticsEventGenerator({required this.useNullSafetySyntax});
 
+  static const _analyticsEventConfigChecker =
+      TypeChecker.fromRuntime(AnalyticsEventConfig);
+
   static const _override = Reference('override');
   static const _trackerFieldName = 'tracker';
 
@@ -62,7 +67,10 @@ class AnalyticsEventGenerator
   bool useNullSafetySyntax;
 
   Parameter _toParameter(
-      ClassElement classElement, ParameterElement parameter) {
+    ClassElement classElement,
+    ParameterElement parameter, {
+    required Case nameCase,
+  }) {
     final nullable =
         parameter.type.nullabilitySuffix == NullabilitySuffix.question;
     final isRequired = !nullable && parameter.defaultValueCode == null;
@@ -84,6 +92,27 @@ class AnalyticsEventGenerator
     );
   }
 
+  T enumValueForDartObject<T>(
+    DartObject source,
+    List<T> items,
+    String Function(T) name,
+  ) =>
+      items[source.getField('index')!.toIntValue()!];
+
+  Case _getCaseFor(Element element, String fieldName) {
+    final annotation = _analyticsEventConfigChecker.firstAnnotationOf(element,
+        throwOnUnresolved: false);
+    if (annotation != null) {
+      final annotationReader = ConstantReader(annotation);
+      return enumValueForDartObject(
+        annotationReader.read('parameterNameCase').objectValue,
+        Case.values,
+        (f) => f.toString().split('.')[1],
+      );
+    }
+    return Case.unchanged;
+  }
+
   @override
   String generateForElement(Element element, BuildStep buildStep) {
     if (element is! ClassElement) {
@@ -94,6 +123,8 @@ class AnalyticsEventGenerator
     }
     final classElement = element;
     final result = StringBuffer();
+    final eventNameCase = _getCaseFor(element, 'eventNameCase');
+    final parameterNameCase = _getCaseFor(element, 'parameterNameCase');
 
     result.writeln('// got to generate for ${element.name}');
 
@@ -104,18 +135,28 @@ class AnalyticsEventGenerator
               ..annotations.add(_override)
               ..requiredParameters.addAll(method.parameters
                   .where((p) => p.isRequiredPositional)
-                  .map((parameter) => _toParameter(classElement, parameter)))
+                  .map((parameter) => _toParameter(
+                        classElement,
+                        parameter,
+                        nameCase: parameterNameCase,
+                      )))
               ..optionalParameters = ListBuilder(
                 method.parameters
                     .where((p) => !p.isRequiredPositional)
-                    .map<Parameter>(
-                        (parameter) => _toParameter(classElement, parameter)),
+                    .map<Parameter>((parameter) => _toParameter(
+                          classElement,
+                          parameter,
+                          nameCase: parameterNameCase,
+                        )),
               )
               ..body = refer(_trackEventMethodName)
 //              .property('track')
                   .call([
-                literalString(_eventName(method.name)),
-                _convertParametersToDictionary(method.parameters)
+                literalString(eventNameCase.convert(_eventName(method.name))),
+                _convertParametersToDictionary(
+                  method.parameters,
+                  nameCase: parameterNameCase,
+                )
               ]).code
 //            ..body = Code(
 //                '''\n$_trackerFieldName.track('${method.name}', ${_convertParametersToDictionary(method.parameters)});\n'''),
@@ -153,10 +194,13 @@ class AnalyticsEventGenerator
 //    return result.toString();
   }
 
-  Expression _convertParametersToDictionary(List<ParameterElement> parameters) {
+  Expression _convertParametersToDictionary(
+    List<ParameterElement> parameters, {
+    required Case nameCase,
+  }) {
     final map = Map.fromEntries(parameters.map(
       (parameter) => MapEntry(
-        literalString(parameter.name),
+        literalString(nameCase.convert(parameter.name)),
         _convertParameterValue(parameter),
       ),
     ));
@@ -209,5 +253,18 @@ extension on Reference {
       return this;
     }
     return ((type as TypeReference).toBuilder()..isNullable = true).build();
+  }
+}
+
+extension on Case {
+  String convert(String value) {
+    switch (this) {
+      case Case.unchanged:
+        return value;
+      case Case.camelCase:
+        return value.camelCase;
+      case Case.snakeCase:
+        return value.snakeCase;
+    }
   }
 }

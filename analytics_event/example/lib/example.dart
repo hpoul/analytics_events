@@ -8,13 +8,18 @@ final _logger = Logger('example');
 
 /// Create an abstract class which implements [AnalyticsEventStubs]
 /// and has stub methods for all events you want to track.
+@AnalyticsEventConfig(
+  eventNameCase: Case.snakeCase,
+  parameterNameCase: Case.snakeCase,
+)
 abstract class Events implements AnalyticsEventStubs {
-  void trackAppLaunch({required String date});
+  /// will be 'app_launch' with parameter 'date' and 'user_id'
+  void trackAppLaunch({required String date, required userId});
   void trackExample(String myRequiredParameter, {String withDefault = 'test'});
 
   /// enums will be correctly transformed
   /// i.e. 'action' will be 'launch', 'remove' or 'share'
-  void trackItem(ItemAction action);
+  void trackItem(ItemAction action, String someParameterName);
 
   void trackNullableItem(ItemAction? action);
 }
@@ -47,7 +52,7 @@ void main() {
   final myAnalytics = AnalyticsService();
 
   // Now you have a typesafe way to send events to your analytics service.
-  myAnalytics.events.trackAppLaunch(date: DateTime.now().toString());
+  myAnalytics.events.trackAppLaunch(date: DateTime.now().toString(), userId: 1);
 
   myAnalytics.dispose();
 }

@@ -1,3 +1,7 @@
+## 1.2.0
+
+* Allow configuration of case renames of event names and parameter names.
+
 ## 1.1.2
 
 * Use `Map<String, Object?>` instead of `Map<String, dynamic>`.

@@ -1,3 +1,8 @@
+## 1.2.0
+
+* Allow configuration of case renames of event names and parameter names.
+
+
 ## 1.1.3
 
 * Upgrade dependency of `analyzer` to support `3.0.0`

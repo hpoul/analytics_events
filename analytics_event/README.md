@@ -59,3 +59,18 @@ flutter pub pub run build_runner build --delete-conflicting-outputs
 pub run build_runner build --delete-conflicting-outputs
 ```
 
+## Configure name transformation
+
+It is possible to rename parameter names and event names:
+
+```dart
+@AnalyticsEventConfig(
+  eventNameCase: Case.snakeCase,
+  parameterNameCase: Case.snakeCase,
+)
+abstract class AnalyticsEvents implements AnalyticsEventStubs {
+  void trackMyUserInteraction({double myProp, String yourProp});
+}
+```
+
+Will generate an event called `my_user_interaction` with parameter `my_prop` and `your_prop`.

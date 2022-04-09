@@ -1,3 +1,5 @@
+import 'package:meta/meta_meta.dart';
+
 /// Interface which should be subclassed by analytics-events stubs.
 abstract class AnalyticsEventStubs {
   const AnalyticsEventStubs();
@@ -50,4 +52,21 @@ mixin AnalyticsEventStubsImpl on AnalyticsEventStubs {
 
   @override
   void removeTracker(TrackAnalytics tracker) => _trackerList.remove(tracker);
+}
+
+enum Case {
+  unchanged,
+  camelCase,
+  snakeCase,
+}
+
+@Target({TargetKind.classType})
+class AnalyticsEventConfig {
+  const AnalyticsEventConfig({
+    this.eventNameCase = Case.unchanged,
+    this.parameterNameCase = Case.unchanged,
+  });
+
+  final Case eventNameCase;
+  final Case parameterNameCase;
 }

@@ -15,19 +15,23 @@ class _$Events extends Events with AnalyticsEventStubsImpl {
   }
 
   @override
-  void trackAppLaunch({required String date}) =>
-      trackEvent('appLaunch', <String, Object?>{'date': date});
+  void trackAppLaunch({required String date, required dynamic userId}) =>
+      trackEvent('app_launch',
+          <String, Object?>{'date': date, 'user_id': userId.toString()});
   @override
   void trackExample(String myRequiredParameter,
           {String withDefault = 'test'}) =>
       trackEvent('example', <String, Object?>{
-        'myRequiredParameter': myRequiredParameter,
-        'withDefault': withDefault
+        'my_required_parameter': myRequiredParameter,
+        'with_default': withDefault
       });
   @override
-  void trackItem(ItemAction action) => trackEvent(
-      'item', <String, Object?>{'action': action.toString().substring(11)});
+  void trackItem(ItemAction action, String someParameterName) =>
+      trackEvent('item', <String, Object?>{
+        'action': action.toString().substring(11),
+        'some_parameter_name': someParameterName
+      });
   @override
-  void trackNullableItem(ItemAction? action) => trackEvent('nullableItem',
+  void trackNullableItem(ItemAction? action) => trackEvent('nullable_item',
       <String, Object?>{'action': action?.toString().substring(11)});
 }
