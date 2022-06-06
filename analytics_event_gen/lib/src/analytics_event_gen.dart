@@ -36,8 +36,7 @@ abstract class GeneratorForImplementers<T> extends Generator {
       return '';
     }
 
-    return '// ignore_for_file: unnecessary_statements\n\n' +
-        values.join('\n\n');
+    return '// ignore_for_file: unnecessary_statements\n\n${values.join('\n\n')}';
   }
 
   String generateForElement(Element element, BuildStep buildStep);
@@ -189,8 +188,7 @@ class AnalyticsEventGenerator
       allocator: Allocator.simplePrefixing(),
       useNullSafetySyntax: useNullSafetySyntax,
     );
-    return '// useNullSafetySyntax: $useNullSafetySyntax\n' +
-        DartFormatter().format('${c.accept(emitter)}');
+    return '// useNullSafetySyntax: $useNullSafetySyntax\n${DartFormatter().format('${c.accept(emitter)}')}';
 //    return result.toString();
   }
 

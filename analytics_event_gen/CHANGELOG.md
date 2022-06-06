@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Upgrade dependencies.
+
 ## 1.2.0
 
 * Allow configuration of case renames of event names and parameter names.
