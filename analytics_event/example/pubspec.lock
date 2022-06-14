@@ -14,14 +14,14 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.1.2"
+    version: "1.2.0"
   analytics_event_gen:
     dependency: "direct dev"
     description:
       path: "../../analytics_event_gen"
       relative: true
     source: path
-    version: "1.1.3"
+    version: "1.2.1"
   analyzer:
     dependency: transitive
     description:
@@ -63,7 +63,7 @@ packages:
       name: build_daemon
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.1.0"
   build_resolvers:
     dependency: transitive
     description:
@@ -77,7 +77,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.8"
+    version: "2.1.11"
   build_runner_core:
     dependency: transitive
     description:

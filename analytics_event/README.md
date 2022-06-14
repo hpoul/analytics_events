@@ -1,6 +1,6 @@
 # analytics_events_gen
 
-An easy generator for tracking firebase analytics events via type safe methods.
+An easy generator for tracking analytics events via type safe methods.
 
 ## Add to pubspec.yaml
 
@@ -11,11 +11,11 @@ Check pub for the latest version:
 ```yaml
 dependencies:
   # ...
-  analytics_event: 0.1.0
+  analytics_event: ^1.2.0
 dev_dependencies:
-  analytics_event_gen: 0.1.0
+  analytics_event_gen: ^1.2.0
   # include build_runner, only used for code generation.
-  build_runner: ^1.6.5
+  build_runner: ^2.1.11
 
 ```
 

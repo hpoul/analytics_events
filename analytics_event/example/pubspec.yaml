@@ -10,7 +10,7 @@ dependencies:
   logging_appenders: ^1.0.0
 
 dev_dependencies:
-  build_runner: ^2.1.2
+  build_runner: ^2.1.11
   analytics_event_gen:
     path: ../../analytics_event_gen
 
