@@ -1,4 +1,4 @@
-# analytics_events_gen
+# analytics_events generator
 
 An easy generator for tracking analytics events via type safe methods.
 
