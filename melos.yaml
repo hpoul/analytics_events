@@ -1,0 +1,7 @@
+name: analytics_events
+packages:
+  - packages/**
+command:
+  bootstrap:
+    usePubspecOverrides: true
+

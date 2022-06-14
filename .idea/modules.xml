@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/packages/analytics_event/melos_analytics_event.iml" filepath="$PROJECT_DIR$/packages/analytics_event/melos_analytics_event.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/analytics_event_gen/melos_analytics_event_gen.iml" filepath="$PROJECT_DIR$/packages/analytics_event_gen/melos_analytics_event_gen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/analytics_event/example/melos_dart_event_gen_example.iml" filepath="$PROJECT_DIR$/packages/analytics_event/example/melos_dart_event_gen_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_analytics_events.iml" filepath="$PROJECT_DIR$/melos_analytics_events.iml" />
+    </modules>
+  </component>
+</project>
