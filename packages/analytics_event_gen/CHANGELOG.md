@@ -1,3 +1,7 @@
+## 1.2.2+2
+
+- Support for analyzer 5.0.0
+
 ## 1.2.2
 
  - Update a dependency to the latest release.

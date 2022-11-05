@@ -224,7 +224,7 @@ class AnalyticsEventGenerator
   Expression _convertParameterValue(ParameterElement parameter) {
     final element = parameter.type.element;
     if (element is ClassElement) {
-      if (element.isEnum) {
+      if (element is EnumElement) {
         if (element.nameLength > 0) {
           final isNullable =
               parameter.type.nullabilitySuffix != NullabilitySuffix.none;
