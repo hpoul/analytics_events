@@ -15,7 +15,8 @@ typedef TrackAnalytics = void Function(
     String event, Map<String, Object?> params);
 
 class _QueuedEvent {
-  _QueuedEvent(this.event, this.params);
+  const _QueuedEvent(this.event, this.params);
+
   final String event;
   final Map<String, Object?> params;
 }

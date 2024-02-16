@@ -1,3 +1,7 @@
+## 1.2.2+3
+
+- Update dependencies.
+
 ## 1.2.2+2
 
 - Support for analyzer 5.0.0

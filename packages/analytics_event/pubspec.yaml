@@ -5,11 +5,11 @@ version: 1.2.1
 homepage: https://github.com/hpoul/analytics_events/
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=3.2.0 <4.0.0'
 
 dependencies:
   meta: ">=1.7.0 <2.0.0"
 
 dev_dependencies:
-  lint: ^1.0.1
+  lints: ^3.0.0
   build_runner: ^2.1.8
