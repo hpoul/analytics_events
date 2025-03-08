@@ -10,6 +10,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:logging/logging.dart';
+import 'package:pub_semver/pub_semver.dart' show Version;
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -188,7 +189,7 @@ class AnalyticsEventGenerator
       allocator: Allocator.simplePrefixing(),
       useNullSafetySyntax: useNullSafetySyntax,
     );
-    return '// useNullSafetySyntax: $useNullSafetySyntax\n${DartFormatter().format('${c.accept(emitter)}')}';
+    return '// useNullSafetySyntax: $useNullSafetySyntax\n${DartFormatter(languageVersion: Version(3, 6, 0)).format('${c.accept(emitter)}')}';
 //    return result.toString();
   }
 

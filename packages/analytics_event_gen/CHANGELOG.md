@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Update dependencies (dart_style ^3.0.0, source_gen ^2.0.0, etc.)
+
 ## 1.2.2+3
 
 - Update dependencies.
