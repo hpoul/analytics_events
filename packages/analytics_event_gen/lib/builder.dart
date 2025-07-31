@@ -1,4 +1,4 @@
-library analytics_event_gen_builder;
+library;
 
 import 'package:analytics_event_gen/src/analytics_event_gen.dart';
 import 'package:build/build.dart';

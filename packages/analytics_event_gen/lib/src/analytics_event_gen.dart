@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:analytics_event/analytics_event.dart';
 import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
@@ -24,7 +24,7 @@ abstract class GeneratorForImplementers<T> extends Generator {
     final values = <String>{};
 
     for (final element in library.allElements) {
-      if (element is ClassElement && needsGenerate(element)) {
+      if (element is ClassElement2 && needsGenerate(element)) {
         final generatedValue = generateForElement(element, buildStep);
         for (final value in [generatedValue]) {
           assert(value.length == value.trim().length);
@@ -40,9 +40,9 @@ abstract class GeneratorForImplementers<T> extends Generator {
     return '// ignore_for_file: unnecessary_statements\n\n${values.join('\n\n')}';
   }
 
-  String generateForElement(Element element, BuildStep buildStep);
+  String generateForElement(Element2 element, BuildStep buildStep);
 
-  bool needsGenerate(ClassElement classElement) {
+  bool needsGenerate(ClassElement2 classElement) {
     return typeChecker.isAssignableFrom(classElement);
   }
 }
@@ -67,8 +67,8 @@ class AnalyticsEventGenerator
   bool useNullSafetySyntax;
 
   Parameter _toParameter(
-    ClassElement classElement,
-    ParameterElement parameter, {
+    ClassElement2 classElement,
+    FormalParameterElement parameter, {
     required Case nameCase,
   }) {
     final nullable =
@@ -81,8 +81,8 @@ class AnalyticsEventGenerator
     }
     return Parameter(
       (pb) => pb
-        ..name = parameter.name
-        ..type = refer(parameter.type.element!.name!).asNullable(nullable)
+        ..name = parameter.name3 ?? ''
+        ..type = refer(parameter.type.element3!.name3!).asNullable(nullable)
         ..required =
             parameter.isNamed && (parameter.isRequiredNamed || isRequired)
         ..named = parameter.isNamed
@@ -99,7 +99,7 @@ class AnalyticsEventGenerator
   ) =>
       items[source.getField('index')!.toIntValue()!];
 
-  Case _getCaseFor(Element element, String fieldName) {
+  Case _getCaseFor(Element2 element, String fieldName) {
     final annotation = _analyticsEventConfigChecker.firstAnnotationOf(element,
         throwOnUnresolved: false);
     if (annotation != null) {
@@ -114,9 +114,9 @@ class AnalyticsEventGenerator
   }
 
   @override
-  String generateForElement(Element element, BuildStep buildStep) {
-    if (element is! ClassElement) {
-      final name = element.name;
+  String generateForElement(Element2 element, BuildStep buildStep) {
+    if (element is! ClassElement2) {
+      final name = element.displayName;
       throw InvalidGenerationSourceError('Generator cannot target `$name`.',
           todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.',
           element: element);
@@ -126,14 +126,14 @@ class AnalyticsEventGenerator
     final eventNameCase = _getCaseFor(element, 'eventNameCase');
     final parameterNameCase = _getCaseFor(element, 'parameterNameCase');
 
-    result.writeln('// got to generate for ${element.name}');
+    result.writeln('// got to generate for ${element.name3}');
 
-    final methods = classElement.methods
+    final methods = classElement.methods2
         .where((method) => method.isAbstract)
         .map((method) => Method.returnsVoid((mb) => mb
-              ..name = method.name
+              ..name = method.name3
               ..annotations.add(_override)
-              ..requiredParameters.addAll(method.parameters
+              ..requiredParameters.addAll(method.formalParameters
                   .where((p) => p.isRequiredPositional)
                   .map((parameter) => _toParameter(
                         classElement,
@@ -141,7 +141,7 @@ class AnalyticsEventGenerator
                         nameCase: parameterNameCase,
                       )))
               ..optionalParameters = ListBuilder(
-                method.parameters
+                method.formalParameters
                     .where((p) => !p.isRequiredPositional)
                     .map<Parameter>((parameter) => _toParameter(
                           classElement,
@@ -152,9 +152,10 @@ class AnalyticsEventGenerator
               ..body = refer(_trackEventMethodName)
 //              .property('track')
                   .call([
-                literalString(eventNameCase.convert(_eventName(method.name))),
+                literalString(
+                    eventNameCase.convert(_eventName(method.name3 ?? ''))),
                 _convertParametersToDictionary(
-                  method.parameters,
+                  method.formalParameters,
                   nameCase: parameterNameCase,
                 )
               ]).code
@@ -164,7 +165,7 @@ class AnalyticsEventGenerator
 
     final c = Class((cb) {
       cb
-        ..name = '_\$${element.name}'
+        ..name = '_\$${element.displayName}'
         ..constructors.add(
           Constructor((conb) => conb
             ..optionalParameters.add(Parameter((pb) => pb
@@ -180,7 +181,7 @@ class AnalyticsEventGenerator
 //        ..fields.add(Field((fb) => fb
 //          ..name = _trackerFieldName
 //          ..type = _trackAnalyticsFunc))
-        ..extend = refer(element.name)
+        ..extend = refer(element.displayName)
         ..mixins.add(refer('AnalyticsEventStubsImpl'))
         ..methods.addAll(methods);
     });
@@ -194,12 +195,12 @@ class AnalyticsEventGenerator
   }
 
   Expression _convertParametersToDictionary(
-    List<ParameterElement> parameters, {
+    List<FormalParameterElement> parameters, {
     required Case nameCase,
   }) {
     final map = Map.fromEntries(parameters.map(
       (parameter) => MapEntry(
-        literalString(nameCase.convert(parameter.name)),
+        literalString(nameCase.convert(parameter.displayName)),
         _convertParameterValue(parameter),
       ),
     ));
@@ -222,27 +223,27 @@ class AnalyticsEventGenerator
     return name;
   }
 
-  Expression _convertParameterValue(ParameterElement parameter) {
-    final element = parameter.type.element;
-    if (element is ClassElement) {
-      if (element is EnumElement) {
-        if (element.nameLength > 0) {
+  Expression _convertParameterValue(FormalParameterElement parameter) {
+    final element = parameter.type.element3;
+    if (element is ClassElement2) {
+      if (element is EnumElement2) {
+        if (element.displayName.isNotEmpty) {
           final isNullable =
               parameter.type.nullabilitySuffix != NullabilitySuffix.none;
           // Get rid of the enum name in the `toString`
           // ie. instead of `MyEnum.myValue` only use `myValue`
           return (isNullable
-                  ? refer(parameter.name).nullSafeProperty('toString')
-                  : refer(parameter.name).property('toString'))
+                  ? refer(parameter.displayName).nullSafeProperty('toString')
+                  : refer(parameter.displayName).property('toString'))
               .call([])
               .property('substring')
-              .call([literalNum(element.nameLength + 1)]);
+              .call([literalNum(element.displayName.length + 1)]);
         }
       }
     }
     return _isDartCore(parameter.type)
-        ? refer(parameter.name)
-        : refer(parameter.name).property('toString').call([]);
+        ? refer(parameter.displayName)
+        : refer(parameter.displayName).property('toString').call([]);
   }
 }
 

@@ -1,3 +1,8 @@
+## 1.4.0
+
+- Element2 Migration (Analyzer 7.4)
+- Update dependencies.
+
 ## 1.3.0
 
 - Update dependencies (dart_style ^3.0.0, source_gen ^2.0.0, etc.)
