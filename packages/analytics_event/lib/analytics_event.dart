@@ -1,3 +1,3 @@
-library analytics_event;
+library;
 
 export 'src/base.dart';
