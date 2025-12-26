@@ -1,3 +1,7 @@
+## 2.0.0-dev.1
+
+- Upgrade to analyzer 9.x, build 4.x, source_gen 4.x
+
 ## 1.4.0
 
 - Element2 Migration (Analyzer 7.4)

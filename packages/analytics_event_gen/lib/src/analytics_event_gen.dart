@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:analytics_event/analytics_event.dart';
 import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
@@ -16,15 +16,15 @@ import 'package:source_gen/source_gen.dart';
 
 final _logger = Logger('analytics_event_gen');
 
-abstract class GeneratorForImplementers<T> extends Generator {
-  TypeChecker get typeChecker => TypeChecker.fromRuntime(T);
+abstract class GeneratorForImplementers extends Generator {
+  TypeChecker get typeChecker;
 
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
     final values = <String>{};
 
     for (final element in library.allElements) {
-      if (element is ClassElement2 && needsGenerate(element)) {
+      if (element is ClassElement && needsGenerate(element)) {
         final generatedValue = generateForElement(element, buildStep);
         for (final value in [generatedValue]) {
           assert(value.length == value.trim().length);
@@ -40,20 +40,28 @@ abstract class GeneratorForImplementers<T> extends Generator {
     return '// ignore_for_file: unnecessary_statements\n\n${values.join('\n\n')}';
   }
 
-  String generateForElement(Element2 element, BuildStep buildStep);
+  String generateForElement(Element element, BuildStep buildStep);
 
-  bool needsGenerate(ClassElement2 classElement) {
+  bool needsGenerate(ClassElement classElement) {
     return typeChecker.isAssignableFrom(classElement);
   }
 }
 
 //class AnalyticsEventGenerator extends GeneratorForAnnotation<AnalyticsEventStubs> {
-class AnalyticsEventGenerator
-    extends GeneratorForImplementers<AnalyticsEventStubs> {
+class AnalyticsEventGenerator extends GeneratorForImplementers {
   AnalyticsEventGenerator({required this.useNullSafetySyntax});
 
+  @override
+  TypeChecker get typeChecker =>
+      const TypeChecker.typeNamed(AnalyticsEventStubs,
+          inPackage: 'analytics_event');
+  // TypeChecker get typeChecker => const TypeChecker.fromUrl(
+  //     'package:analytics_event/analytics_event.dart#AnalyticsEventStubs');
+
   static const _analyticsEventConfigChecker =
-      TypeChecker.fromRuntime(AnalyticsEventConfig);
+      TypeChecker.typeNamed(AnalyticsEventConfig, inPackage: 'analytics_event');
+  // static const _analyticsEventConfigChecker = TypeChecker.fromUrl(
+  //     'package:analytics_event/analytics_event.dart#AnalyticsEventConfig');
 
   static const _override = Reference('override');
   static const _trackerFieldName = 'tracker';
@@ -67,7 +75,7 @@ class AnalyticsEventGenerator
   bool useNullSafetySyntax;
 
   Parameter _toParameter(
-    ClassElement2 classElement,
+    ClassElement classElement,
     FormalParameterElement parameter, {
     required Case nameCase,
   }) {
@@ -81,8 +89,8 @@ class AnalyticsEventGenerator
     }
     return Parameter(
       (pb) => pb
-        ..name = parameter.name3 ?? ''
-        ..type = refer(parameter.type.element3!.name3!).asNullable(nullable)
+        ..name = parameter.name ?? ''
+        ..type = refer(parameter.type.element!.name!).asNullable(nullable)
         ..required =
             parameter.isNamed && (parameter.isRequiredNamed || isRequired)
         ..named = parameter.isNamed
@@ -99,7 +107,7 @@ class AnalyticsEventGenerator
   ) =>
       items[source.getField('index')!.toIntValue()!];
 
-  Case _getCaseFor(Element2 element, String fieldName) {
+  Case _getCaseFor(Element element, String fieldName) {
     final annotation = _analyticsEventConfigChecker.firstAnnotationOf(element,
         throwOnUnresolved: false);
     if (annotation != null) {
@@ -114,8 +122,8 @@ class AnalyticsEventGenerator
   }
 
   @override
-  String generateForElement(Element2 element, BuildStep buildStep) {
-    if (element is! ClassElement2) {
+  String generateForElement(Element element, BuildStep buildStep) {
+    if (element is! ClassElement) {
       final name = element.displayName;
       throw InvalidGenerationSourceError('Generator cannot target `$name`.',
           todo: 'Remove the $AnalyticsEventStubs annotation from `$name`.',
@@ -126,12 +134,12 @@ class AnalyticsEventGenerator
     final eventNameCase = _getCaseFor(element, 'eventNameCase');
     final parameterNameCase = _getCaseFor(element, 'parameterNameCase');
 
-    result.writeln('// got to generate for ${element.name3}');
+    result.writeln('// got to generate for ${element.name}');
 
-    final methods = classElement.methods2
+    final methods = classElement.methods
         .where((method) => method.isAbstract)
         .map((method) => Method.returnsVoid((mb) => mb
-              ..name = method.name3
+              ..name = method.name
               ..annotations.add(_override)
               ..requiredParameters.addAll(method.formalParameters
                   .where((p) => p.isRequiredPositional)
@@ -153,7 +161,7 @@ class AnalyticsEventGenerator
 //              .property('track')
                   .call([
                 literalString(
-                    eventNameCase.convert(_eventName(method.name3 ?? ''))),
+                    eventNameCase.convert(_eventName(method.name ?? ''))),
                 _convertParametersToDictionary(
                   method.formalParameters,
                   nameCase: parameterNameCase,
@@ -224,9 +232,9 @@ class AnalyticsEventGenerator
   }
 
   Expression _convertParameterValue(FormalParameterElement parameter) {
-    final element = parameter.type.element3;
-    if (element is ClassElement2) {
-      if (element is EnumElement2) {
+    final element = parameter.type.element;
+    if (element is ClassElement) {
+      if (element is EnumElement) {
         if (element.displayName.isNotEmpty) {
           final isNullable =
               parameter.type.nullabilitySuffix != NullabilitySuffix.none;
