@@ -1,3 +1,11 @@
+## 2.1.0
+
+- Allow analyzer up to 14.x. Flutter 3.47 and later pin `matcher 0.12.20` and
+  `test_api 0.7.14` in `flutter_test`, which only `test` 1.31.2 and later
+  satisfy, and those require analyzer 13 or 14 - so a package held to
+  analyzer 10 could not be resolved alongside `flutter_test` at all. No code
+  change was needed; the Element2 migration in 1.4.0 already covers this.
+
 ## 2.0.0
 
 - Allow analyzer 10.0.0
